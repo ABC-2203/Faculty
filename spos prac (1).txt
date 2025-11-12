@@ -1,0 +1,1288 @@
+1.MEMORY ALLOCATION ALL 3 PROG . SAVE THE FILE NAME AS MemoryAllocation.java
+
+
+import java.util.Scanner;
+
+public class MemoryAllocation {
+
+    // Function to perform First Fit allocation
+    static void firstFit(int blockSize[], int m, int processSize[], int n) {
+        int allocation[] = new int[n];
+        for (int i = 0; i < n; i++)
+            allocation[i] = -1;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (blockSize[j] >= processSize[i]) {
+                    allocation[i] = j;
+                    blockSize[j] -= processSize[i];
+                    break;
+                }
+            }
+        }
+
+        System.out.println("\n--- FIRST FIT ALLOCATION ---");
+        printAllocation(processSize, allocation);
+    }
+
+    // Function to perform Best Fit allocation
+    static void bestFit(int blockSize[], int m, int processSize[], int n) {
+        int allocation[] = new int[n];
+        for (int i = 0; i < n; i++)
+            allocation[i] = -1;
+
+        for (int i = 0; i < n; i++) {
+            int bestIdx = -1;
+            for (int j = 0; j < m; j++) {
+                if (blockSize[j] >= processSize[i]) {
+                    if (bestIdx == -1 || blockSize[j] < blockSize[bestIdx])
+                        bestIdx = j;
+                }
+            }
+
+            if (bestIdx != -1) {
+                allocation[i] = bestIdx;
+                blockSize[bestIdx] -= processSize[i];
+            }
+        }
+
+        System.out.println("\n--- BEST FIT ALLOCATION ---");
+        printAllocation(processSize, allocation);
+    }
+
+    // Function to perform Worst Fit allocation
+    static void worstFit(int blockSize[], int m, int processSize[], int n) {
+        int allocation[] = new int[n];
+        for (int i = 0; i < n; i++)
+            allocation[i] = -1;
+
+        for (int i = 0; i < n; i++) {
+            int worstIdx = -1;
+            for (int j = 0; j < m; j++) {
+                if (blockSize[j] >= processSize[i]) {
+                    if (worstIdx == -1 || blockSize[j] > blockSize[worstIdx])
+                        worstIdx = j;
+                }
+            }
+
+            if (worstIdx != -1) {
+                allocation[i] = worstIdx;
+                blockSize[worstIdx] -= processSize[i];
+            }
+        }
+
+        System.out.println("\n--- WORST FIT ALLOCATION ---");
+        printAllocation(processSize, allocation);
+    }
+
+    // Function to print the allocation results neatly
+    static void printAllocation(int processSize[], int allocation[]) {
+        System.out.println("---------------------------------------------------");
+        System.out.printf("%-12s %-15s %-10s\n", "Process No.", "Process Size", "Block No.");
+        System.out.println("---------------------------------------------------");
+
+        for (int i = 0; i < processSize.length; i++) {
+            if (allocation[i] != -1)
+                System.out.printf("%-12d %-15d %-10d\n", (i + 1), processSize[i], (allocation[i] + 1));
+            else
+                System.out.printf("%-12d %-15d %-10s\n", (i + 1), processSize[i], "Not Allocated");
+        }
+        System.out.println("---------------------------------------------------");
+    }
+
+    // MAIN FUNCTION
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of memory blocks: ");
+        int m = sc.nextInt();
+        int blockSize[] = new int[m];
+        int originalBlockSize[] = new int[m];
+
+        System.out.println("Enter sizes of memory blocks:");
+        for (int i = 0; i < m; i++) {
+            blockSize[i] = sc.nextInt();
+            originalBlockSize[i] = blockSize[i]; // Store original for reset
+        }
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+        int processSize[] = new int[n];
+        System.out.println("Enter sizes of processes:");
+        for (int i = 0; i < n; i++)
+            processSize[i] = sc.nextInt();
+
+        // FIRST FIT
+        firstFit(blockSize, m, processSize, n);
+
+        // Reset block sizes to original before next fit
+        for (int i = 0; i < m; i++)
+            blockSize[i] = originalBlockSize[i];
+
+        // BEST FIT
+        bestFit(blockSize, m, processSize, n);
+
+        // Reset block sizes again
+        for (int i = 0; i < m; i++)
+            blockSize[i] = originalBlockSize[i];
+
+        // WORST FIT
+        worstFit(blockSize, m, processSize, n);
+
+        sc.close();
+    }
+}
+
+OUTPUT:
+
+Enter number of memory blocks: 5
+Enter sizes of memory blocks:
+100 500 200 300 600
+Enter number of processes: 4
+Enter sizes of processes:
+212 417 112 426
+
+--- FIRST FIT ALLOCATION ---
+---------------------------------------------------
+Process No.   Process Size    Block No.
+---------------------------------------------------
+1             212             2
+2             417             5
+3             112             3
+4             426             Not Allocated
+---------------------------------------------------
+
+--- BEST FIT ALLOCATION ---
+---------------------------------------------------
+Process No.   Process Size    Block No.
+---------------------------------------------------
+1             212             4
+2             417             2
+3             112             3
+4             426             5
+---------------------------------------------------
+
+--- WORST FIT ALLOCATION ---
+---------------------------------------------------
+Process No.   Process Size    Block No.
+---------------------------------------------------
+1             212             5
+2             417             2
+3             112             4
+4             426             Not Allocated
+---------------------------------------------------
+
+
+
+
+
+
+2.FCFS CODE
+
+import java.util.Scanner;
+
+public class FCFS {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        int[] arrivalTime = new int[n];
+        int[] burstTime = new int[n];
+        int[] completionTime = new int[n];
+        int[] turnAroundTime = new int[n];
+        int[] waitingTime = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            System.out.println("\nProcess P" + (i + 1) + ":");
+            System.out.print("Enter Arrival Time: ");
+            arrivalTime[i] = sc.nextInt();
+            System.out.print("Enter Burst Time: ");
+            burstTime[i] = sc.nextInt();
+        }
+
+        int currentTime = 0;
+        for (int i = 0; i < n; i++) {
+            if (currentTime < arrivalTime[i]) {
+                currentTime = arrivalTime[i]; // CPU idle until process arrives
+            }
+            currentTime += burstTime[i];
+            completionTime[i] = currentTime;
+        }
+
+        double totalTAT = 0, totalWT = 0;
+        for (int i = 0; i < n; i++) {
+            turnAroundTime[i] = completionTime[i] - arrivalTime[i];
+            waitingTime[i] = turnAroundTime[i] - burstTime[i];
+            totalTAT += turnAroundTime[i];
+            totalWT += waitingTime[i];
+        }
+
+        System.out.println("\nProcess\tAT\tBT\tCT\tTAT\tWT");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("P%-3d\t%-3d\t%-3d\t%-3d\t%-3d\t%-3d\n",
+                              (i + 1), arrivalTime[i], burstTime[i],
+                              completionTime[i], turnAroundTime[i], waitingTime[i]);
+        }
+
+        System.out.printf("\nAverage Turnaround Time: %.2f\n", totalTAT / n);
+        System.out.printf("Average Waiting Time: %.2f\n", totalWT / n);
+
+        sc.close();
+    }
+}
+
+OUTPUT:
+
+Enter number of processes: 3
+Process P1:
+Enter Arrival Time: 0
+Enter Burst Time: 5
+Process P2:
+Enter Arrival Time: 0
+Enter Burst Time: 3
+Process P3:
+Enter Arrival Time: 0
+Enter Burst Time: 8
+
+
+Process  AT  BT  CT  TAT WT
+P1       0   5   5   5   0
+P2       0   3   8   8   5
+P3       0   8   16  16  8
+
+Average Turnaround Time: 9.67
+Average Waiting Time: 4.33
+
+
+
+
+
+
+3.SJF (Preemptive)CODE 
+
+import java.util.Scanner;
+
+class Process {
+    int pid;   // Process ID
+    int at;    // Arrival Time
+    int bt;    // Burst Time
+    int rt;    // Remaining Time
+    int ct;    // Completion Time
+    int tat;   // Turnaround Time
+    int wt;    // Waiting Time
+}
+
+public class SJF_Preemptive {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        Process[] p = new Process[n];
+        for (int i = 0; i < n; i++) {
+            p[i] = new Process();
+            p[i].pid = i + 1;
+            System.out.print("Enter Arrival Time of P" + (i + 1) + ": ");
+            p[i].at = sc.nextInt();
+            System.out.print("Enter Burst Time of P" + (i + 1) + ": ");
+            p[i].bt = sc.nextInt();
+            p[i].rt = p[i].bt; // initialize remaining time
+        }
+
+        int completed = 0, currentTime = 0, minRT, idx = -1;
+        boolean check = false;
+        float totalTAT = 0, totalWT = 0;
+
+        while (completed != n) {
+            minRT = Integer.MAX_VALUE;
+            idx = -1;
+
+            // Find process with shortest remaining time among arrived processes
+            for (int i = 0; i < n; i++) {
+                if (p[i].at <= currentTime && p[i].rt > 0) {
+                    if (p[i].rt < minRT) {
+                        minRT = p[i].rt;
+                        idx = i;
+                        check = true;
+                    }
+                }
+            }
+
+            if (!check) {
+                currentTime++;
+                continue;
+            }
+
+            // Decrease remaining time of selected process
+            p[idx].rt--;
+
+            // If process completed
+            if (p[idx].rt == 0) {
+                completed++;
+                check = false;
+                p[idx].ct = currentTime + 1;
+                p[idx].tat = p[idx].ct - p[idx].at;
+                p[idx].wt = p[idx].tat - p[idx].bt;
+                if (p[idx].wt < 0) p[idx].wt = 0;
+
+                totalTAT += p[idx].tat;
+                totalWT += p[idx].wt;
+            }
+
+            currentTime++;
+        }
+
+        // Print Table
+        System.out.println("\nPID\tAT\tBT\tCT\tTAT\tWT");
+        for (int i = 0; i < n; i++) {
+            System.out.println("P" + p[i].pid + "\t" + p[i].at + "\t" + p[i].bt + "\t" +
+                               p[i].ct + "\t" + p[i].tat + "\t" + p[i].wt);
+        }
+
+        System.out.println("\nAverage Turnaround Time = " + (totalTAT / n));
+        System.out.println("Average Waiting Time = " + (totalWT / n));
+    }
+}
+
+output:
+javac SJF_Preemptive.java
+java SJF_Preemptive
+
+Enter number of processes: 3
+Enter Arrival Time of P1: 0
+Enter Burst Time of P1: 7
+Enter Arrival Time of P2: 2
+Enter Burst Time of P2: 4
+Enter Arrival Time of P3: 4
+Enter Burst Time of P3: 1
+
+PID	AT	BT	CT	TAT	WT
+P1	0	7	12	12	5
+P2	2	4	8	6	2
+P3	4	1	5	1	0
+
+Average Turnaround Time = 6.3333335
+Average Waiting Time = 2.3333333
+
+
+
+
+
+
+
+
+
+4.SJF(NON-PREEMPTIVE)(PRIORITY)
+
+import java.util.Scanner;
+
+class Process {
+    int pid;   // Process ID
+    int bt;    // Burst Time
+    int wt;    // Waiting Time
+    int tat;   // Turnaround Time
+
+    Process(int pid, int bt) {
+        this.pid = pid;
+        this.bt = bt;
+    }
+}
+
+public class SJF_NonPremptive {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Input number of processes
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+        Process[] proc = new Process[n];
+
+        // Input burst times
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter Burst Time for Process " + (i + 1) + ": ");
+            int bt = sc.nextInt();
+            proc[i] = new Process(i + 1, bt);
+        }
+
+        // Sort processes by burst time (SJF logic)
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (proc[i].bt > proc[j].bt) {
+                    Process temp = proc[i];
+                    proc[i] = proc[j];
+                    proc[j] = temp;
+                }
+            }
+        }
+
+        // Calculate waiting time
+        proc[0].wt = 0;
+        for (int i = 1; i < n; i++) {
+            proc[i].wt = proc[i - 1].wt + proc[i - 1].bt;
+        }
+
+        // Calculate turnaround time
+        for (int i = 0; i < n; i++) {
+            proc[i].tat = proc[i].wt + proc[i].bt;
+        }
+
+        // Display results
+        System.out.println("\nProcess\tBurst Time\tWaiting Time\tTurnaround Time");
+        int totalWT = 0, totalTAT = 0;
+        for (int i = 0; i < n; i++) {
+            System.out.println("P" + proc[i].pid + "\t\t" + proc[i].bt + "\t\t" +
+                               proc[i].wt + "\t\t" + proc[i].tat);
+            totalWT += proc[i].wt;
+            totalTAT += proc[i].tat;
+        }
+
+        // Display averages
+        System.out.println("\nAverage Waiting Time = " + (float) totalWT / n);
+        System.out.println("Average Turnaround Time = " + (float) totalTAT / n);
+
+        sc.close();
+    }
+}
+
+
+OUTPUT:
+
+javac SJF_NonPremptive.java
+java SJF_NonPremptive
+
+
+Enter number of processes: 3
+Enter Burst Time for Process 1: 5
+Enter Burst Time for Process 2: 3
+Enter Burst Time for Process 3: 8
+
+Process    Burst Time    Waiting Time    Turnaround Time
+P2         3             0               3
+P1         5             3               8
+P3         8             8               16
+
+Average Waiting Time = 3.6666667
+Average Turnaround Time = 9.0
+
+
+
+
+
+
+
+
+5.ROUND ROBIN
+
+import java.util.*; 
+
+class Process {
+    int pid;
+    int arrivalTime;
+    int burstTime;
+    int remainingTime;
+    int completionTime;
+    int turnaroundTime;
+    int waitingTime;
+
+    Process(int pid, int arrivalTime, int burstTime) {
+        this.pid = pid;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+        this.remainingTime = burstTime;
+    }
+}
+
+public class RoundR {
+    public static void roundRobin(List<Process> procs, int quantum) {
+        // sort by arrival time
+        procs.sort(Comparator.comparingInt(p -> p.arrivalTime));
+
+        Queue<Process> queue = new LinkedList<>();
+        int currentTime = 0;
+        int idx = 0;  // index of next process in procs not yet enqueued
+
+        while (true) {
+            // enqueue all processes that have arrived by currentTime
+            while (idx < procs.size() && procs.get(idx).arrivalTime <= currentTime) {
+                queue.add(procs.get(idx));
+                idx++;
+            }
+
+            if (queue.isEmpty()) {
+                // If no ready process, jump currentTime to next arrival (if any)
+                if (idx < procs.size()) {
+                    currentTime = procs.get(idx).arrivalTime;
+                    continue;
+                } else {
+                    break; // all completed
+                }
+            }
+
+            Process p = queue.poll(); // take front process
+            int exec = Math.min(quantum, p.remainingTime);
+            p.remainingTime -= exec;
+            currentTime += exec;
+
+            // Enqueue any new processes that arrived during this execution interval
+            while (idx < procs.size() && procs.get(idx).arrivalTime <= currentTime) {
+                queue.add(procs.get(idx));
+                idx++;
+            }
+
+            if (p.remainingTime > 0) {
+                // Process not finished — put it at the end of queue
+                queue.add(p);
+            } else {
+                // Process finished — set times
+                p.completionTime = currentTime;
+                p.turnaroundTime = p.completionTime - p.arrivalTime;
+                p.waitingTime = p.turnaroundTime - p.burstTime;
+            }
+        }
+
+        // Output results and averages
+        System.out.println("PID  Arrival  Burst  Completion  Turnaround  Waiting");
+        double totalTAT = 0, totalWT = 0;
+        for (Process p : procs) {
+            System.out.printf("%3d %8d %6d %11d %11d %8d\n",
+                p.pid, p.arrivalTime, p.burstTime, p.completionTime, p.turnaroundTime, p.waitingTime);
+            totalTAT += p.turnaroundTime;
+            totalWT += p.waitingTime;
+        }
+        int n = procs.size();
+        System.out.printf("Average Turnaround Time = %.2f\n", totalTAT / n);
+        System.out.printf("Average Waiting Time = %.2f\n", totalWT / n);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Number of processes: ");
+        int n = sc.nextInt();
+
+        List<Process> procs = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            System.out.printf("Enter arrival time for P%d: ", i + 1);
+            int at = sc.nextInt();
+            System.out.printf("Enter burst time for P%d: ", i + 1);
+            int bt = sc.nextInt();
+            procs.add(new Process(i + 1, at, bt));
+        }
+
+        System.out.print("Enter time quantum: ");
+        int quantum = sc.nextInt();
+        roundRobin(procs, quantum);
+        sc.close();
+    }
+}
+
+OUTPUT:
+
+javac RoundR.java
+java RoundR
+
+Number of processes: 3
+Enter arrival time for P1: 0
+Enter burst time for P1: 5
+Enter arrival time for P2: 1
+Enter burst time for P2: 3
+Enter arrival time for P3: 2
+Enter burst time for P3: 8
+Enter time quantum: 2
+
+PID  Arrival  Burst  Completion  Turnaround  Waiting
+  1        0      5         14          14        9
+  2        1      3         10           9        6
+  3        2      8         16          14        6
+Average Turnaround Time = 12.33
+Average Waiting Time = 7.00
+
+
+
+
+
+
+
+
+6.PASS 1
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+
+class symbol {
+    String sym;
+    int addr;
+}
+
+class littab {
+    String lit;
+    int addr;
+}
+
+public class Pass1 {
+    HashMap<String, Integer> OPTAB = new HashMap<String, Integer>(); // mnemonic table
+    HashMap<String, Integer> REGTAB = new HashMap<String, Integer>(); // register table
+    HashMap<String, Integer> CONDTAB = new HashMap<String, Integer>(); // condition table
+    HashMap<String, Integer> ADTAB = new HashMap<String, Integer>(); // assembly directive table
+
+    int MAX = 20;
+    symbol SYMTAB[] = new symbol[MAX]; // Symbol Table
+    littab LITTAB[] = new littab[MAX]; // Literal Table
+    String buffer;
+    int symcount = 0;
+
+    Pass1() {
+        int lc = 0, litcnt = 0, poolcnt = 0, proc_lit = 0;
+
+        // initialize all tables
+        initialize_OPTAB();
+        initialize_CONDTAB();
+        initialize_REGTAB();
+        initialize_ADTAB();
+
+        // assign memory in advance for symbols and literals
+        for (int i = 0; i < MAX; i++) {
+            SYMTAB[i] = new symbol();
+            LITTAB[i] = new littab();
+        }
+    }
+
+    public void initialize_OPTAB() {
+        OPTAB.put("STOP", 0);
+        OPTAB.put("ADD", 1);
+        OPTAB.put("SUB", 2);
+        OPTAB.put("MULT", 3);
+        OPTAB.put("MOVER", 4);
+        OPTAB.put("MOVEM", 5);
+        OPTAB.put("COMP", 6);
+        OPTAB.put("BC", 7);
+        OPTAB.put("DIV", 8);
+        OPTAB.put("READ", 9);
+        OPTAB.put("PRINT", 10);
+    }
+
+    public void initialize_REGTAB() {
+        REGTAB.put("AREG", 1);
+        REGTAB.put("BREG", 2);
+        REGTAB.put("CREG", 3);
+        REGTAB.put("DREG", 4);
+    }
+
+    public void initialize_CONDTAB() {
+        CONDTAB.put("LT", 1);
+        CONDTAB.put("LE", 2);
+        CONDTAB.put("EQ", 3);
+        CONDTAB.put("GT", 4);
+        CONDTAB.put("GE", 5);
+        CONDTAB.put("ANY", 6);
+    }
+
+    public void initialize_ADTAB() {
+        ADTAB.put("START", 1);
+        ADTAB.put("END", 2);
+        ADTAB.put("ORIGIN", 3);
+        ADTAB.put("EQU", 4);
+        ADTAB.put("LTORG", 5);
+    }
+
+    public int search_OPTAB(String str) {
+        if (OPTAB.containsKey(str)) return OPTAB.get(str);
+        else return -1;
+    }
+
+    public int search_REGTAB(String str) {
+        if (REGTAB.containsKey(str)) return REGTAB.get(str);
+        else return -1;
+    }
+
+    public int search_CONDTAB(String str) {
+        if (CONDTAB.containsKey(str)) return CONDTAB.get(str);
+        else return -1;
+    }
+
+    public int search_ADTAB(String str) {
+        if (ADTAB.containsKey(str)) return ADTAB.get(str);
+        else return -1;
+    }
+
+    public int search_symbol(String str) {
+        for (int i = 0; i < symcount; i++) {
+            if (str.equals(SYMTAB[i].sym))
+                return i;
+        }
+        return -1;
+    }
+
+    void passone() throws IOException {
+        int n, i = 0, j = 0, p, k;
+        int lc = 0, litcnt = 0, proc_lit = 0;
+
+        FileReader source_file = new FileReader("input.txt");
+        BufferedReader fs = new BufferedReader(source_file);
+        FileWriter ic_file = new FileWriter("ic.txt");
+        BufferedWriter ft = new BufferedWriter(ic_file);
+
+        while ((buffer = fs.readLine()) != null) {
+            String[] tokens = buffer.split(" |\\,");
+            n = tokens.length; // number of tokens
+
+            switch (n) {
+                case 1:
+                    i = search_OPTAB(tokens[0]);
+                    if (i == 0) {
+                        ft.write("(IS," + String.format("%02d)", i));
+                        lc++;
+                        break;
+                    }
+                    i = search_ADTAB(tokens[0]);
+                    if (i == 2 || i == 5) {
+                        for (j = proc_lit; j < litcnt; j++) {
+                            LITTAB[j].addr = lc++;
+                        }
+                        proc_lit = litcnt;
+                        ft.write("(AD," + String.format("%02d)", i));
+                    }
+                    break;
+
+                case 2:
+                    i = search_ADTAB(tokens[0]);
+                    if (i == 1 || i == 3) {
+                        lc = Integer.parseInt(tokens[1]);
+                        ft.write("(AD," + String.format("%02d)", i) + " (C," + tokens[1] + ")");
+                        break;
+                    }
+
+                    i = search_OPTAB(tokens[0]);
+                    if (i == 9 || i == 10) {
+                        p = search_symbol(tokens[1]);
+                        if (p == -1) {
+                            SYMTAB[symcount].sym = tokens[1];
+                            symcount++;
+                            ft.write("(IS," + String.format("%02d)", i) + " (S," + String.format("%02d)", symcount));
+                        } else {
+                            ft.write("(IS," + String.format("%02d)", i) + " (S," + String.format("%02d)", p));
+                        }
+                        lc++;
+                        break;
+                    }
+                    break;
+
+                case 3:
+                    i = search_OPTAB(tokens[0]);
+                    if (i >= 1 && i <= 8) {
+                        lc++;
+                        if (i == 7)
+                            k = search_CONDTAB(tokens[1]);
+                        else
+                            k = search_REGTAB(tokens[1]);
+
+                        if (tokens[2].charAt(0) == '=') {
+                            String teemp = tokens[2].substring(2, 3);
+                            litcnt++;
+                            LITTAB[litcnt].lit = teemp;
+                            ft.write("(IS," + String.format("%02d) (", i) + k + ")(L," + String.format("%02d)", litcnt));
+                        } else {
+                            p = search_symbol(tokens[2]);
+                            if (p == -1) {
+                                SYMTAB[symcount].sym = tokens[2];
+                                symcount++;
+                                ft.write("(IS," + String.format("%02d) (", i) + k + ")(S," + String.format("%02d)", symcount));
+                            } else {
+                                ft.write("(IS," + String.format("%02d) (", i) + k + ")(S," + String.format("%02d)", p));
+                            }
+                        }
+                        break;
+                    }
+
+                    if (tokens[1].equals("DS")) {
+                        p = search_symbol(tokens[0]);
+                        if (p == -1) {
+                            SYMTAB[symcount].sym = tokens[0];
+                            SYMTAB[symcount].addr = lc;
+                            symcount++;
+                            ft.write("(DL,02) (C," + tokens[2] + ")");
+                        } else {
+                            SYMTAB[p].addr = lc;
+                            ft.write("(DL,02) (C," + tokens[2] + ")");
+                        }
+                        lc = lc + Integer.parseInt(tokens[2]);
+                        break;
+                    }
+
+                    if (tokens[1].equals("DC")) {
+                        p = search_symbol(tokens[0]);
+                        if (p == -1) {
+                            SYMTAB[symcount].sym = tokens[0];
+                            SYMTAB[symcount].addr = lc;
+                            symcount++;
+                            ft.write("(DL,01) (C," + tokens[2]);
+                        } else {
+                            SYMTAB[p].addr = lc;
+                            ft.write("(DL,01) (C," + tokens[2]);
+                        }
+                        break;
+                    }
+                    break;
+            }
+            ft.write("\n");
+        }
+        ft.close();
+    }
+
+    void print_littab() {
+        for (int i = 0; i < MAX; i++) {
+            if (LITTAB[i].lit != null)
+                System.out.println(LITTAB[i].lit + " \t" + LITTAB[i].addr);
+        }
+    }
+
+    void print_symtab() {
+        for (int i = 0; i < symcount; i++) {
+            System.out.println(SYMTAB[i].sym + " \t" + SYMTAB[i].addr);
+        }
+    }
+
+    void print_srcfile() throws IOException {
+        FileReader source_file = new FileReader("input.txt");
+        BufferedReader fs = new BufferedReader(source_file);
+        String buffer;
+        while ((buffer = fs.readLine()) != null) {
+            System.out.println(buffer);
+        }
+        fs.close();
+    }
+
+    void print_icfile() throws IOException {
+        FileReader source_file = new FileReader("ic.txt");
+        BufferedReader fs = new BufferedReader(source_file);
+        String buffer;
+        while ((buffer = fs.readLine()) != null) {
+            System.out.println(buffer);
+        }
+        fs.close();
+    }
+
+    public static void main(String[] args) throws IOException {
+        Pass1 obj = new Pass1();
+        obj.passone();
+
+        System.out.println("SOURCE CODE\n");
+        obj.print_srcfile();
+        System.out.println("\n\n*************************************************");
+        System.out.println("\n\nINTERMEDIATE CODE\n");
+        obj.print_icfile();
+        System.out.println("\n\n*************************************************");
+        System.out.println("\n\nSYMBOL TABLE");
+        System.out.println("=================");
+        System.out.println("Symbol\tAddress");
+        System.out.println("=================");
+        obj.print_symtab();
+        System.out.println("\n\n*************************************************");
+        System.out.println("\n\nLITERAL TABLE");
+        System.out.println("=================");
+        System.out.println("Literal\tAddress");
+        System.out.println("=================");
+        obj.print_littab();
+    }
+}
+
+
+FILE: input.txt
+
+START 200
+READ A
+LOOP MOVER AREG,A
+SUB AREG,='1'
+BC GT,LOOP
+STOP
+LTORG
+A DS 1
+END
+
+
+
+OUTPUT:
+
+SOURCE CODE
+START 200
+READ A
+LOOP MOVER AREG,A
+SUB AREG,='1'
+BC GT,LOOP
+STOP
+LTORG
+A DS 1
+END
+
+*************************************************
+INTERMEDIATE CODE
+(AD,01) (C,200)
+(IS,09) (S,01)
+(IS,04) (1)(S,01)
+(IS,02) (1)(L,01)
+(IS,07) (4)(S,02)
+(IS,00)
+(AD,05)
+(DL,02) (C,1)
+(AD,02)
+*************************************************
+SYMBOL TABLE
+=================
+Symbol  Address
+=================
+A       205
+LOOP    201
+*************************************************
+LITERAL TABLE
+=================
+Literal Address
+=================
+1       204
+
+
+
+
+
+
+
+
+7.PASS 2
+
+import java.io.BufferedReader; 
+import java.io.FileReader; 
+import java.io.FileWriter; 
+import java.io.IOException; 
+import java.util.HashMap; 
+
+public class Pass2 { 
+    public static void main(String[] Args) throws IOException { 
+        BufferedReader b1 = new BufferedReader(new FileReader("intermediate.txt")); 
+        BufferedReader b2 = new BufferedReader(new FileReader("symtab.txt")); 
+        BufferedReader b3 = new BufferedReader(new FileReader("littab.txt")); 
+        FileWriter f1 = new FileWriter("Pass2.txt"); 
+
+        HashMap<Integer, String> symSymbol = new HashMap<Integer, String>(); 
+        HashMap<Integer, String> litSymbol = new HashMap<Integer, String>(); 
+        HashMap<Integer, String> litAddr = new HashMap<Integer, String>(); 
+
+        String s; 
+        int symtabPointer = 1, littabPointer = 1, offset; 
+
+        while ((s = b2.readLine()) != null) { 
+            String word[] = s.split("\t\t\t"); 
+            symSymbol.put(symtabPointer++, word[1]); 
+        } 
+
+        while ((s = b3.readLine()) != null) { 
+            String word[] = s.split("\t\t"); 
+            litSymbol.put(littabPointer, word[0]); 
+            litAddr.put(littabPointer++, word[1]); 
+        } 
+
+        while ((s = b1.readLine()) != null) { 
+            if (s.substring(1, 6).compareToIgnoreCase("IS,00") == 0) { 
+                f1.write("+ 00 0 000\n"); 
+            } else if (s.substring(1, 3).compareToIgnoreCase("IS") == 0) { 
+                f1.write("+ " + s.substring(4, 6) + " "); 
+                if (s.charAt(9) == ')') { 
+                    f1.write(s.charAt(8) + " "); 
+                    offset = 3; 
+                } else { 
+                    f1.write("0 "); 
+                    offset = 0; 
+                } 
+
+                if (s.charAt(8 + offset) == 'S') 
+                    f1.write(symSymbol.get(Integer.parseInt(s.substring(10 + offset, s.length() - 1))) + "\n"); 
+                else 
+                    f1.write(litAddr.get(Integer.parseInt(s.substring(10 + offset, s.length() - 1))) + "\n"); 
+            } else if (s.substring(1, 6).compareToIgnoreCase("DL,01") == 0) { 
+                String s1 = s.substring(10, s.length() - 1), s2 = ""; 
+                for (int i = 0; i < 3 - s1.length(); i++) 
+                    s2 += "0"; 
+                s2 += s1; 
+                f1.write("+ 00 0 " + s2 + "\n"); 
+            } else { 
+                f1.write("\n"); 
+            } 
+        } 
+
+        f1.close(); 
+        b1.close(); 
+        b2.close(); 
+        b3.close(); 
+    } 
+}
+
+
+FILE:intermediate.txt
+
+(AD,01)(C,200)
+(IS,04)(1)(L,1)
+(IS,05)(1)(S,1)
+(IS,04)(1)(S,1)
+(IS,04)(3)(S,3)
+(IS,01)(3)(L,2)
+(IS,07)(6)(S,4)
+(DL,01)(C,5)
+(DL,01)(C,1)
+(IS,02)(1)(L,3)
+(IS,07)(1)(S,5)
+(IS,00)
+(AD,03)(S,2)+2
+(IS,03)(3)(S,3)
+(AD,03)(S,6)+1
+(DL,02)(C,1)
+(DL,02)(C,1)
+(AD,02)
+(DL,01)(C,1)
+
+
+FILE: symtab.txt
+
+A			211	1
+LOOP			202	1
+B			212	1
+NEXT			208	1
+BACK			202	1
+LAST			210	1
+
+
+FILE: littab.txt
+
+5		206
+1		207
+1		213
+
+
+OUTPUT:
+
+javac Pass2.java
+java Pass2
+
+Pass2.txt
+
++ 04 1 206 
++ 05 1 211 
++ 04 1 211 
++ 04 3 212 
++ 01 3 207 
++ 07 6 208 
++ 00 0 005 
++ 00 0 001  
++ 02 1 213 
++ 07 1 202 
++ 00 0 000 
+
++ 03 3 212 
+
++ 00 0 001 
+
+NOTE: type Pass2.txt (Windows) or cat Pass2.txt (Linux)
+
+
+
+
+
+
+
+8.DATA LINK LIBRARY
+
+FILE: Main.cpp
+
+#include <iostream> 
+#include "MathLibrary.h" 
+
+int main() { 
+    std::cout << "Add: " << add(4, 2) << std::endl; 
+    std::cout << "Subtract: " << subtract(4, 2) << std::endl; 
+    std::cout << "Mult: " << mult(4, 2) << std::endl; 
+    std::cout << "mod: " << mod(4, 2) << std::endl; 
+    return 0; 
+}
+
+
+
+
+FILE: MathLibrary.cpp
+
+#include "MathLibrary.h" 
+
+int add(int a, int b) { 
+    return a + b; 
+} 
+
+int subtract(int a, int b) { 
+    return a - b; 
+} 
+
+int mult(int a, int b) { 
+    return a * b; 
+} 
+
+int mod(int a, int b) { 
+    return a % b; 
+}
+
+
+
+FILE:MathLibrary.h
+
+#pragma once 
+
+#ifdef __cplusplus 
+extern "C" { 
+#endif 
+
+int add(int a, int b); 
+int subtract(int a, int b); 
+int mult(int a, int b); 
+int mod(int a, int b); 
+
+#ifdef __cplusplus 
+} 
+#endif
+
+
+
+
+OUTPUT:
+
+gescoe@gescoe-OptiPlex-3010:~/Desktop/TE-46/LP/DLL$ g++ -fPIC -c MathLibrary.cpp -o MathLibrary.o
+
+gescoe@gescoe-OptiPlex-3010:~/Desktop/TE-46/LP/DLL$ g++ -shared -o libmath.so MathLibrary.o
+
+gescoe@gescoe-OptiPlex-3010:~/Desktop/TE-46/LP/DLL$ g++ main.cpp -L. -lmath -o main
+
+gescoe@gescoe-OptiPlex-3010:~/Desktop/TE-46/LP/DLL$ LD_LIBRARY_PATH=. ./main
+
+Add: 6 
+Subtract: 2 
+Mult: 8 
+mod: 0
+
+
+
+
+
+
+
+BEST FIT:
+
+import java.util.Arrays;
+
+public class BestFit {
+    public static void main(String[] args) {
+        int[] blockSize = {100, 500, 200, 300, 600};
+        int[] processSize = {212, 417, 112, 426};
+        int[] allocation = new int[processSize.length];
+        Arrays.fill(allocation, -1);
+
+        for (int i = 0; i < processSize.length; i++) {
+            int bestIdx = -1;
+            for (int j = 0; j < blockSize.length; j++)
+                if (blockSize[j] >= processSize[i] && 
+                   (bestIdx == -1 || blockSize[j] < blockSize[bestIdx]))
+                    bestIdx = j;
+            if (bestIdx != -1) {
+                allocation[i] = bestIdx;
+                blockSize[bestIdx] -= processSize[i];
+            }
+        }
+
+        System.out.println("\n--- Best Fit ---");
+        System.out.println("Process No.\tProcess Size\tBlock No.");
+        for (int i = 0; i < processSize.length; i++)
+            System.out.println((i + 1) + "\t\t" + processSize[i] + "\t\t" +
+                (allocation[i] != -1 ? (allocation[i] + 1) : "Not Allocated"));
+    }
+}
+
+
+
+
+
+
+
+FIRST FIT:
+
+import java.util.Arrays;
+
+public class FirstFit {
+    public static void main(String[] args) {
+        int[] blockSize = {100, 500, 200, 300, 600};
+        int[] processSize = {212, 417, 112, 426};
+        int[] allocation = new int[processSize.length];
+        Arrays.fill(allocation, -1);
+
+        for (int i = 0; i < processSize.length; i++)
+            for (int j = 0; j < blockSize.length; j++)
+                if (blockSize[j] >= processSize[i]) {
+                    allocation[i] = j;
+                    blockSize[j] -= processSize[i];
+                    break;
+                }
+
+        System.out.println("\n--- First Fit ---");
+        System.out.println("Process No.\tProcess Size\tBlock No.");
+        for (int i = 0; i < processSize.length; i++)
+            System.out.println((i + 1) + "\t\t" + processSize[i] + "\t\t" +
+                (allocation[i] != -1 ? (allocation[i] + 1) : "Not Allocated"));
+    }
+}
+
+
+
+
+
+
+WORST FIT:
+
+
+import java.util.Arrays;
+
+public class WorstFit {
+    public static void main(String[] args) {
+        int[] blockSize = {100, 500, 200, 300, 600};
+        int[] processSize = {212, 417, 112, 426};
+        int[] allocation = new int[processSize.length];
+        Arrays.fill(allocation, -1);
+
+        for (int i = 0; i < processSize.length; i++) {
+            int worstIdx = -1;
+            for (int j = 0; j < blockSize.length; j++)
+                if (blockSize[j] >= processSize[i] && 
+                   (worstIdx == -1 || blockSize[j] > blockSize[worstIdx]))
+                    worstIdx = j;
+            if (worstIdx != -1) {
+                allocation[i] = worstIdx;
+                blockSize[worstIdx] -= processSize[i];
+            }
+        }
+
+        System.out.println("\n--- Worst Fit ---");
+        System.out.println("Process No.\tProcess Size\tBlock No.");
+        for (int i = 0; i < processSize.length; i++)
+            System.out.println((i + 1) + "\t\t" + processSize[i] + "\t\t" +
+                (allocation[i] != -1 ? (allocation[i] + 1) : "Not Allocated"));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
